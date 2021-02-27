@@ -8,6 +8,7 @@ class PoseNetController{
         this.loadPoseNet();
         this.lastPoseCaptured = null;
         this.poseEvent = new CustomEvent('posecaptured', {pose : this.lastPoseCaptured})
+        this.framesWithoutDetections = 0;
         document.addEventListener('posecaptured', this.capturePose.bind(this), false);
         
     }
@@ -21,9 +22,16 @@ class PoseNetController{
     async capturePose(){
         //TODO: Maybe it is necessary to verify here that the videoStream data is accessible
         let pose = await this.poseNet.estimateSinglePose(this.videoStream);
-        this.lastPoseCaptured = this.cleanPose(pose);
-        for (const callback of this.callbacksOnPoseCaptured){
-            callback(this.lastPoseCaptured);
+        //Transform pose into an object only containing the parts with higher confidence than a threshold.
+        pose = this.cleanPose(pose, MIN_PART_CONFIDENCE);
+        if (pose.size > 0){
+            this.lastPoseCaptured = pose;
+            for (const callback of this.callbacksOnPoseCaptured){ 
+                callback(this.lastPoseCaptured);
+            }
+            this.framesWithoutDetections = 0;
+        } else {
+            this.framesWithoutDetections++;
         }
         document.dispatchEvent(this.poseEvent);
     }
