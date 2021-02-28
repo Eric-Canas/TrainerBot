@@ -1,4 +1,4 @@
-import {MIN_PART_CONFIDENCE, INVERT_Y_AXIS} from "./Constants.js";
+import {MIN_PART_CONFIDENCE, INVERT_Y_AXIS} from "../Model/Constants.js";
 
 class PoseNetController{
     constructor(webcamController, callbacksOnPoseCaptured = []){

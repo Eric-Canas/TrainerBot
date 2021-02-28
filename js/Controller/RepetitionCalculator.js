@@ -1,4 +1,4 @@
-import {MAX_FREQUENCY_IN_FRAMES, INVERT_Y_AXIS, DRAWN_POINTS_RADIUS} from "./Constants.js";
+import {MAX_FREQUENCY_IN_FRAMES, INVERT_Y_AXIS, DRAWN_POINTS_RADIUS} from "../Model/Constants.js";
 
 class RepetitionCalculator{
     constructor(poseNetController, onPushPoseCallbacks = [], basePose = null){
@@ -59,6 +59,7 @@ class RepetitionCalculator{
     updateBasePose(){
          //TODO: Check the whole array looking for a better base pose. The best pose is those where the part of the body with more standard deviation is at the lower point. 
         //And preferrably if we are updating during the same exercise, the one closer to the original. It also should have the more body parts visible.
+        //make the decision or heuristic for deciding best basePose for the current exercise.
     }
     
     updateStd(){

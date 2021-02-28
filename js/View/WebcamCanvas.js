@@ -1,4 +1,4 @@
-import {DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT} from "./Constants.js";
+import {DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT} from "../Model/Constants.js";
 class WebcamCanvas{
     constructor(){
         this.videoStream = document.getElementById('webcamFrame');

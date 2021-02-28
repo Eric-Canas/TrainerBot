@@ -1,5 +1,5 @@
-import {MAX_FREQ_RANGE, MAX_FREQUENCY_IN_FRAMES} from "./Constants.js";
-import {CHART_LINE_COLOR, CHART_BACKGROUND_COLOR, CHART_LABEL} from "./Constants.js";
+import {MAX_FREQ_RANGE, MAX_FREQUENCY_IN_FRAMES} from "../Model/Constants.js";
+import {CHART_LINE_COLOR, CHART_BACKGROUND_COLOR, CHART_LABEL} from "../Model/Constants.js";
 
 class FrequencyChart{
     constructor(canvasID){
