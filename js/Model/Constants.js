@@ -1,3 +1,15 @@
+/**
+ * Copyright (c) 2021
+ *
+ * Summary. Defines the configuration for the project.
+ * Description. Defines the constants that will be used through the project.
+ *              In this way all the internal configuration is gathered here. 
+ * 
+ * @author Eric Cañas <elcorreodeharu@gmail.com>
+ * @file   This file defines the constants of the project.
+ * @since  0.0.1
+ */
+
 // Frequency constants
 const MAX_FREQUENCY_IN_FRAMES = 250;
 const MAX_FREQ_RANGE = [...Array(MAX_FREQUENCY_IN_FRAMES).keys()];

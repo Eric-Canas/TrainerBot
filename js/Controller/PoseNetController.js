@@ -52,7 +52,7 @@ class PoseNetController{
      * @param {float} minConfidence : Float between 0.0 and 1.0. Minimum confidence of a part for being considered as detected.
      *                                Parts with low confidence use to be not present in the image. Default: MIN_PART_CONFIDENCE.
      */
-    async capturePose(minConfidence = MIN_PART_CONFIDENCE){
+    async capturePose(event, minConfidence = MIN_PART_CONFIDENCE){
         //TODO: Maybe it is necessary to verify here that the videoStream data is accessible
         let pose = await this.poseNet.estimateSinglePose(this.webcamController.videoStream);
         //Transform pose into an object only containing the parts with higher confidence than a threshold.
@@ -85,7 +85,8 @@ class PoseNetController{
         let cleanPose = {};
         for (const part of pose.keypoints){
             if (part.score > minConfidence){
-                cleanPose[part.part] = {x : part.position.x/this.webcamController.width, y : invertYAxis - (part.position.y/this.webcamController.height)};
+                cleanPose[part.part] = {x : part.position.x/this.webcamController.width,
+                                        y : invertYAxis - (part.position.y/this.webcamController.height)};
             }
         }
         return cleanPose;

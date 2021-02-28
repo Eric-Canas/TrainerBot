@@ -1,5 +1,5 @@
 import {WebcamCanvas} from "./View/WebcamCanvas.js";
-import {RepetitionCalculator} from "./Controller/RepetitionCalculator.js";
+import {ExerciseStreamController} from "./Controller/ExerciseStreamController.js";
 import {FrequencyChart} from "./View/FrequencyChart.js";
 import {ExerciseController} from "./Controller/ExerciseController.js";
 import {PoseNetController} from "./Controller/PoseNetController.js";
@@ -11,8 +11,8 @@ const frequencyChart = new FrequencyChart('chart');
 //Set Controllers
 const poseNetController = new PoseNetController(webcamCanvas);
 const onPushPoseCallbacks = [frequencyChart.updateChart.bind(frequencyChart)];
-const repetitionCalculator = new RepetitionCalculator(poseNetController, onPushPoseCallbacks);
-poseNetController.callbacksOnPoseCaptured.push(repetitionCalculator.pushPose.bind(repetitionCalculator));
-poseNetController.callbacksOnPoseCaptured.push(repetitionCalculator.drawPose.bind(repetitionCalculator));
-const exerciseController = new ExerciseController(poseNetController, repetitionCalculator);
+const exerciseStreamController = new ExerciseStreamController(poseNetController, onPushPoseCallbacks);
+poseNetController.callbacksOnPoseCaptured.push(exerciseStreamController.pushPose.bind(exerciseStreamController));
+poseNetController.callbacksOnPoseCaptured.push(exerciseStreamController.drawPose.bind(exerciseStreamController));
+const exerciseController = new ExerciseController(poseNetController, exerciseStreamController);
 

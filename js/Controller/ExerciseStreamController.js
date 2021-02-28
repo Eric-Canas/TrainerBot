@@ -1,6 +1,6 @@
 import {MAX_FREQUENCY_IN_FRAMES, INVERT_Y_AXIS, DRAWN_POINTS_RADIUS} from "../Model/Constants.js";
 
-class RepetitionCalculator{
+class ExerciseStreamController{
     constructor(poseNetController, onPushPoseCallbacks = [], basePose = null){
         this.poseNetController = poseNetController;
         this.basePose = basePose;
@@ -94,4 +94,4 @@ class RepetitionCalculator{
 
 }
 
-export {RepetitionCalculator};
+export {ExerciseStreamController};
