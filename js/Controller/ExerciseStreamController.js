@@ -1,17 +1,17 @@
-import {MAX_FREQUENCY_IN_FRAMES, INVERT_Y_AXIS, DRAWN_POINTS_RADIUS} from "../Model/Constants.js";
+import {MAX_FREQUENCY_IN_FRAMES, POSENET_PART_NAMES, META_INFORMATION_WINDOW, PONDER_DIFFERENCE_BY_STD} from "../Model/Constants.js";
+
 
 class ExerciseStreamController{
-    constructor(poseNetController, onPushPoseCallbacks = [], basePose = null){
-        this.poseNetController = poseNetController;
-        this.basePose = basePose;
+    constructor(onPushPoseCallbacks = []){
+        this.basePose = null;
         this.maxQueueLength = MAX_FREQUENCY_IN_FRAMES;
-        this.distancesQueue = basePose? [0] : [];
-        this.posesQueue = basePose? [basePose ] : [];
+        this.distancesQueue = [];
+        this.posesQueue = [];
         this.onPushPoseCallbacks = onPushPoseCallbacks;
         this.framesWithoutPoseUpdate = 0;
         this.framesBetweenUpdates = ~~(MAX_FREQUENCY_IN_FRAMES/2);
-        this.XStd = {};
-        this.YStd = {};
+        this.xStd = [];
+        this.yStd = [];
     }
 
     /*Pushes a pose in the buffer and calls all the callbacks*/
@@ -29,15 +29,15 @@ class ExerciseStreamController{
         }
     }
 
-    /*Calculates the distance between the newPose Map and a base pose.*/
-    distanceToBasePose(newPose){
-        const commonVisibleParts = Object.keys(this.basePose).filter(key => Object.keys(newPose).includes(key));
+    /*Calculates the distance between the pose Map and a base pose.*/
+    distanceToBasePose(pose, ponderByStd = PONDER_DIFFERENCE_BY_STD){
+        const commonVisibleParts = Object.keys(this.basePose).filter(key => Object.keys(pose).includes(key));
         //we do not want to calculate a distance since we must avoid to loss the sign.
         let differenceX = 0;
         let differenceY = 0;
         for (const part of commonVisibleParts){
-            differenceX += this.basePose[part].x - newPose[part].x;
-            differenceY += this.basePose[part].y - newPose[part].y;
+            differenceX += this.basePose[part].x - pose[part].x;
+            differenceY += this.basePose[part].y - pose[part].y;
         }
         return differenceX+differenceY;
         
@@ -63,34 +63,35 @@ class ExerciseStreamController{
     }
     
     updateStd(){
-        let xStd = {};
-        let yStd = {};
+        let xStd = {}
+        let yStd = {}
+        
+        for (const part of POSENET_PART_NAMES){
+            xStd[part] = [];
+            yStd[part] = [];
+        }
+
         for (const pose of this.posesQueue){
             for (const [part, position] of Object.entries(pose)){
-                if (xStd.hasOwnProperty(part)){
-                    xStd[part].push(position.x);
-                    yStd[part].push(position.y);
-                } else {
-                    xStd[part] = [position.x];
-                    yStd[part] = [position.y];
-                }
+                xStd[part].push(position.x);
+                yStd[part].push(position.y);
             }
         }
-        this.xStd = {};
-        this.yStd = {};
+
         for(const part of Object.keys(xStd)){
-            this.xStd[part] = math.std(xStd[part]);
-            this.yStd[part] = math.std(yStd[part]);
+            xStd[part] = xStd[part].length > 0 ? math.std(xStd[part]) : 0;
+            yStd[part] = yStd[part].length > 0 ? math.std(yStd[part]) : 0;
+        }
+
+        this.xStd.push(xStd)
+        this.yStd.push(yStd)
+        if (this.xStd.length > META_INFORMATION_WINDOW){
+            this.xStd.shift();
+            this.yStd.shift();
         }
     }
 
-    drawPose(pose){
-        //TODO: YOU CAN DO IT BETTER
-        this.poseNetController.webcamController.clearCanvas();
-        for (const [part, position] of Object.entries(pose)){
-            this.poseNetController.webcamController.drawPoint(position.x*this.poseNetController.webcamController.width, (INVERT_Y_AXIS-position.y)*this.poseNetController.webcamController.height, DRAWN_POINTS_RADIUS, "red");
-        }
-    }
+    
 
 }
 

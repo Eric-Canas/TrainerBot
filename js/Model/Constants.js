@@ -11,9 +11,10 @@
  */
 
 // Frequency constants
-const MAX_FREQUENCY_IN_FRAMES = 250;
+const MAX_FREQUENCY_IN_FRAMES = 500;
 const MAX_FREQ_RANGE = [...Array(MAX_FREQUENCY_IN_FRAMES).keys()];
-export {MAX_FREQUENCY_IN_FRAMES, MAX_FREQ_RANGE};
+const META_INFORMATION_WINDOW = ~~(MAX_FREQUENCY_IN_FRAMES/10)
+export {MAX_FREQUENCY_IN_FRAMES, MAX_FREQ_RANGE, META_INFORMATION_WINDOW};
 
 
 // Chart constants
@@ -33,4 +34,18 @@ export {DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH, DRAWN_POINTS_RADIUS};
 
 //PoseNet constants
 const MIN_PART_CONFIDENCE = 0.4;
-export {MIN_PART_CONFIDENCE}
+const POSENET_PART_NAMES = ["nose", "leftEye", "rightEye", "leftEar", "rightEar",
+                            "leftShoulder", "rightShoulder", "leftElbow", "rightElbow",
+                            "leftWrist", "rightWrist", "leftHip", "rightHip",
+                            "leftKnee", "rightKnee", "leftAnkle", "rightAnkle"];
+const SKELETON_CONNECTIONS = [["leftShoulder", "rightShoulder"], ["leftShoulder", "leftElbow"], ["leftShoulder", "leftHip"],
+                              ["rightShoulder", "righElbow"], ["rightShoulder", "rightHip"], ["leftElbow", "leftWrist"], 
+                              ["rightElbow", "rightWrist"], ["leftHip", "rightHip"], ["leftHip", "leftKnee"], 
+                              ["rightHip", "rightKnee"], ["leftKnee", "leftAnkle"], ["rightKnee", "rightAnkle"]]
+
+export {MIN_PART_CONFIDENCE, POSENET_PART_NAMES, SKELETON_CONNECTIONS}
+
+//Exercise Estimation Constants
+const PONDER_DIFFERENCE_BY_STD = false;
+
+export {PONDER_DIFFERENCE_BY_STD};
