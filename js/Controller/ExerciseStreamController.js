@@ -1,4 +1,5 @@
-import {MAX_FREQUENCY_IN_FRAMES, POSENET_PART_NAMES, META_INFORMATION_WINDOW, PONDER_DIFFERENCE_BY_STD} from "../Model/Constants.js";
+import {MAX_FREQUENCY_IN_FRAMES, POSENET_CLEANED_PART_NAMES, META_INFORMATION_WINDOW,
+        PONDER_DIFFERENCE_BY_STD, FRAMES_BETWEEN_UPDATES, COUNT_STD_FROM_PERCENTILE} from "../Model/Constants.js";
 
 
 class ExerciseStreamController{
@@ -9,7 +10,7 @@ class ExerciseStreamController{
         this.posesQueue = [];
         this.onPushPoseCallbacks = onPushPoseCallbacks;
         this.framesWithoutPoseUpdate = 0;
-        this.framesBetweenUpdates = ~~(MAX_FREQUENCY_IN_FRAMES/2);
+        this.framesBetweenUpdates = FRAMES_BETWEEN_UPDATES;
         this.xStd = [];
         this.yStd = [];
     }
@@ -62,16 +63,16 @@ class ExerciseStreamController{
         //make the decision or heuristic for deciding best basePose for the current exercise.
     }
     
-    updateStd(){
+    updateStd(startAtPercentile = COUNT_STD_FROM_PERCENTILE){
         let xStd = {}
         let yStd = {}
-        
-        for (const part of POSENET_PART_NAMES){
+        const poseQueueToUse = this.posesQueue.slice(~~(this.posesQueue.length*startAtPercentile));
+        for (const part of POSENET_CLEANED_PART_NAMES){
             xStd[part] = [];
             yStd[part] = [];
         }
 
-        for (const pose of this.posesQueue){
+        for (const pose of poseQueueToUse){
             for (const [part, position] of Object.entries(pose)){
                 xStd[part].push(position.x);
                 yStd[part].push(position.y);

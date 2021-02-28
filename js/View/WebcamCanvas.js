@@ -43,7 +43,7 @@ class WebcamCanvas{
     clearCanvas(){
         this.webcamCanvas.clearRect(0, 0, this.width, this.height);
     }
-    
+
     drawPoint(x, y, radius, color){
         this.webcamCanvas.beginPath();
         this.webcamCanvas.arc(x, y, radius, 0, 2 * Math.PI);
@@ -51,13 +51,13 @@ class WebcamCanvas{
         this.webcamCanvas.fill();
     }
 
-    drawSegment([ay, ax], [by, bx], color, scale) {
-        this.videoStream.beginPath();
-        this.videoStream.moveTo(ax * scale, ay * scale);
-        this.videoStream.lineTo(bx * scale, by * scale);
-        this.videoStream.lineWidth = lineWidth;
-        this.videoStream.strokeStyle = color;
-        this.videoStream.stroke();
+    drawSegment([ax, ay], [bx, by], color, lineWidth) {
+        this.webcamCanvas.beginPath();
+        this.webcamCanvas.moveTo(ax, ay);
+        this.webcamCanvas.lineTo(bx, by);
+        this.webcamCanvas.lineWidth = lineWidth;
+        this.webcamCanvas.strokeStyle = color;
+        this.webcamCanvas.stroke();
     }
 }
 export {WebcamCanvas};

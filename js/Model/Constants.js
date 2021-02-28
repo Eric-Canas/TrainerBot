@@ -11,10 +11,12 @@
  */
 
 // Frequency constants
-const MAX_FREQUENCY_IN_FRAMES = 500;
+const MAX_FREQUENCY_IN_FRAMES = 300;
 const MAX_FREQ_RANGE = [...Array(MAX_FREQUENCY_IN_FRAMES).keys()];
 const META_INFORMATION_WINDOW = ~~(MAX_FREQUENCY_IN_FRAMES/10)
-export {MAX_FREQUENCY_IN_FRAMES, MAX_FREQ_RANGE, META_INFORMATION_WINDOW};
+const FRAMES_BETWEEN_UPDATES = ~~(MAX_FREQUENCY_IN_FRAMES/10)
+const COUNT_STD_FROM_PERCENTILE = 0.5;
+export {MAX_FREQUENCY_IN_FRAMES, MAX_FREQ_RANGE, META_INFORMATION_WINDOW, FRAMES_BETWEEN_UPDATES, COUNT_STD_FROM_PERCENTILE};
 
 
 // Chart constants
@@ -34,16 +36,17 @@ export {DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH, DRAWN_POINTS_RADIUS};
 
 //PoseNet constants
 const MIN_PART_CONFIDENCE = 0.4;
-const POSENET_PART_NAMES = ["nose", "leftEye", "rightEye", "leftEar", "rightEar",
-                            "leftShoulder", "rightShoulder", "leftElbow", "rightElbow",
-                            "leftWrist", "rightWrist", "leftHip", "rightHip",
-                            "leftKnee", "rightKnee", "leftAnkle", "rightAnkle"];
+const POSENET_CLEANED_PART_NAMES = ["head", "leftShoulder", "rightShoulder", "leftElbow", "rightElbow",
+                                    "leftWrist", "rightWrist", "leftHip", "rightHip", "leftKnee", 
+                                    "rightKnee", "leftAnkle", "rightAnkle"];
+
+const AVERAGED_PARTS = {"head" : ["nose", "leftEye", "rightEye", "leftEar", "rightEar"]}
 const SKELETON_CONNECTIONS = [["leftShoulder", "rightShoulder"], ["leftShoulder", "leftElbow"], ["leftShoulder", "leftHip"],
-                              ["rightShoulder", "righElbow"], ["rightShoulder", "rightHip"], ["leftElbow", "leftWrist"], 
+                              ["rightShoulder", "rightElbow"], ["rightShoulder", "rightHip"], ["leftElbow", "leftWrist"], 
                               ["rightElbow", "rightWrist"], ["leftHip", "rightHip"], ["leftHip", "leftKnee"], 
                               ["rightHip", "rightKnee"], ["leftKnee", "leftAnkle"], ["rightKnee", "rightAnkle"]]
 
-export {MIN_PART_CONFIDENCE, POSENET_PART_NAMES, SKELETON_CONNECTIONS}
+export {MIN_PART_CONFIDENCE, POSENET_CLEANED_PART_NAMES, SKELETON_CONNECTIONS, AVERAGED_PARTS}
 
 //Exercise Estimation Constants
 const PONDER_DIFFERENCE_BY_STD = false;

@@ -11,7 +11,7 @@
  * @file   This file defines the PoseNetController class.
  * @since  0.0.1
  */
-import {MIN_PART_CONFIDENCE, INVERT_Y_AXIS} from "../Model/Constants.js";
+import {MIN_PART_CONFIDENCE, INVERT_Y_AXIS, AVERAGED_PARTS} from "../Model/Constants.js";
 
 class PoseNetController{
     /**
@@ -89,6 +89,23 @@ class PoseNetController{
                                         y : invertYAxis - (part.position.y/this.webcamController.height)};
             }
         }
+        
+        for (const averagedPart of Object.keys(AVERAGED_PARTS)){
+            let foundPartsX = [];
+            let foundPartsY = [];
+            for (const part of AVERAGED_PARTS[averagedPart]){
+                if (cleanPose.hasOwnProperty(part)){
+                    foundPartsX.push(cleanPose[part].x);
+                    foundPartsY.push(cleanPose[part].y);
+                    delete cleanPose[part];
+                }
+            }
+            
+            if (foundPartsX.length > 0){
+                cleanPose[averagedPart] = {x : math.mean(foundPartsX), y : math.mean(foundPartsY)};
+            }
+        }
+
         return cleanPose;
     }
 }
