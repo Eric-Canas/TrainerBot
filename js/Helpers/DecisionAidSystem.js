@@ -23,11 +23,11 @@ class DecisionAidSystem{
         this.criterias = criterias;
     }
 
-    decide(candidatePoses){
+    decide(candidatePoses, additionalArgs = []){
         let scores = [];
         // Extract the N scores arrays
-        for (const [criteria, args] of this.criterias){
-            scores.push(criteria(candidatePoses, ...args));
+        for (const [criteria, weight] of this.criterias){
+            scores.push(criteria(candidatePoses, weight, ...additionalArgs));
         }
         // Sum them up
         if (scores.length > 0){
@@ -65,6 +65,18 @@ class DecisionAidSystem{
             let avg = 0;
             for (const position of Object.values(pose)){
                 avg += position.y;
+            }
+            scores.push(1-(avg/Object.keys(pose).length));
+        }
+        return scores;
+    }
+
+    static minimizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normXStd, normYStd){
+        let scores = [];
+        for (const pose of candidatePoses){
+            let avg = 0;
+            for (const [part, position] of Object.entries(pose)){
+                avg += position.x*normXStd[part] + position.y*normYStd[part];
             }
             scores.push(1-(avg/Object.keys(pose).length));
         }

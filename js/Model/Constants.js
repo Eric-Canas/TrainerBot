@@ -59,5 +59,9 @@ export {MIN_PART_CONFIDENCE, POSENET_CLEANED_PART_NAMES, SKELETON_CONNECTIONS, A
 
 //Exercise Estimation Constants
 const PONDER_DIFFERENCE_BY_STD = false;
-const BASE_POSE_CRITERIA = [[DecisionAidSystem.maximizeVisibleBodyParts, [0.5]], [DecisionAidSystem.minimizeAverageYPosition, [0.5]]];
+const BASE_POSE_CRITERIA = [[DecisionAidSystem.maximizeVisibleBodyParts, 0.5], [DecisionAidSystem.minimizeAveragePositionOnStdDirection, 0.5]];
 export {PONDER_DIFFERENCE_BY_STD, BASE_POSE_CRITERIA};
+
+//Others
+const EPSILON = 0.0001;
+export {EPSILON};
