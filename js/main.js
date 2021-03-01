@@ -1,7 +1,7 @@
 import {WebcamCanvas} from "./View/WebcamCanvas.js";
 import {ExerciseStreamController} from "./Controller/ExerciseStreamController.js";
 import {FrequencyChart} from "./View/FrequencyChart.js";
-import {PosePainter} from "./View/PosePainter.js";
+import {PosePainter} from "./Helpers/PosePainter.js";
 import {ExerciseController} from "./Controller/ExerciseController.js";
 import {PoseNetController} from "./Controller/PoseNetController.js";
 

@@ -1,24 +1,30 @@
 import {MAX_FREQUENCY_IN_FRAMES, POSENET_CLEANED_PART_NAMES, META_INFORMATION_WINDOW,
-        PONDER_DIFFERENCE_BY_STD, FRAMES_BETWEEN_UPDATES, COUNT_STD_FROM_PERCENTILE} from "../Model/Constants.js";
-
+        PONDER_DIFFERENCE_BY_STD, MILISECONDS_BETWEEN_CONSISTENCY_UPDATES, 
+        COUNT_STD_FROM_PERCENTILE, BASE_POSE_CRITERIA} from "../Model/Constants.js";
+import {DecisionAidSystem} from '../Helpers/DecisionAidSystem.js'
 
 class ExerciseStreamController{
-    constructor(onPushPoseCallbacks = []){
+    constructor(onPushPoseCallbacks = [], checkStdInterval = MILISECONDS_BETWEEN_CONSISTENCY_UPDATES){
         this.basePose = null;
+        //this.objectivePose = null;
         this.maxQueueLength = MAX_FREQUENCY_IN_FRAMES;
         this.distancesQueue = [];
         this.posesQueue = [];
         this.onPushPoseCallbacks = onPushPoseCallbacks;
-        this.framesWithoutPoseUpdate = 0;
-        this.framesBetweenUpdates = FRAMES_BETWEEN_UPDATES;
         this.xStd = [];
         this.yStd = [];
+        this.basePoseDecisionSystem = new DecisionAidSystem(BASE_POSE_CRITERIA)
+        this.stdprocessID = setInterval(() => this.checkBasePose.call(this), checkStdInterval)
+
     }
 
     /*Pushes a pose in the buffer and calls all the callbacks*/
     pushPose(pose){
         this.posesQueue.push(pose);
-        this.checkBasePose();
+        if (this.basePose == null){
+            this.basePose = this.posesQueue[this.posesQueue.length - 1];
+            this.checkBasePose()
+        }
         this.distancesQueue.push(this.distanceToBasePose(pose));
         // Maintain it as a finite size queue
         if (this.posesQueue.length > this.maxQueueLength) {
@@ -37,30 +43,28 @@ class ExerciseStreamController{
         let differenceX = 0;
         let differenceY = 0;
         for (const part of commonVisibleParts){
-            differenceX += this.basePose[part].x - pose[part].x;
-            differenceY += this.basePose[part].y - pose[part].y;
+            differenceX +=  pose[part].x - this.basePose[part].x;
+            differenceY +=  pose[part].y - this.basePose[part].y;
         }
         return differenceX+differenceY;
         
     }
 
-    checkBasePose(){
-        if (this.basePose == null){
-            this.basePose = this.posesQueue[this.posesQueue.length - 1];
-        }
-        if (this.framesWithoutPoseUpdate % this.framesBetweenUpdates === 0){
+    async checkBasePose(){
+        if (this.basePose !== null){
             this.updateBasePose();
             this.updateStd();
-            this.framesWithoutPoseUpdate = 1;
-        } else {
-            this.framesWithoutPoseUpdate++
         }
     }
     
     updateBasePose(){
-         //TODO: Check the whole array looking for a better base pose. The best pose is those where the part of the body with more standard deviation is at the lower point. 
+         //TODO: The best pose is those where the part of the body with more standard deviation is at the lower point. 
         //And preferrably if we are updating during the same exercise, the one closer to the original. It also should have the more body parts visible.
-        //make the decision or heuristic for deciding best basePose for the current exercise.
+        const basePose = this.basePoseDecisionSystem.decide(this.posesQueue)
+        if (basePose !== null){
+            this.basePose = basePose;
+        }
+
     }
     
     updateStd(startAtPercentile = COUNT_STD_FROM_PERCENTILE){

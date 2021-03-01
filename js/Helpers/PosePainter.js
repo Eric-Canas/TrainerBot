@@ -1,5 +1,6 @@
 import {INVERT_Y_AXIS, DRAWN_POINTS_RADIUS, SKELETON_CONNECTIONS, 
-        SHOW_STD_DIRECTION, POINTS_TO_LINE_THRESHOLD} from "../Model/Constants.js";
+        SHOW_STD_DIRECTION, POINTS_TO_LINE_THRESHOLD, PLOT_BASE_POSE,
+        TRANSPARENT_RED, TRANSPARENT_WHITE} from "../Model/Constants.js";
 
 class PosePainter{
     constructor(webcamCanvas, exerciseStreamController){
@@ -7,7 +8,7 @@ class PosePainter{
         this.exerciseStreamController = exerciseStreamController;
     }
     
-    drawPose(pose, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD){
+    drawPose(pose, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD, alsoPlotBasePose = PLOT_BASE_POSE){
         //TODO: Improve it
         const width = this.webcamCanvas.width;
         const height = this.webcamCanvas.height;
@@ -27,13 +28,20 @@ class PosePainter{
             }
         } else {
             for (const [part, position] of Object.entries(pose)){
-                this.webcamCanvas.drawPoint(position.x*width, (invertYAxis-position.y)*height, pointsRadius, this.selectColorForPart(part));
+                this.webcamCanvas.drawPoint(position.x*width, (invertYAxis-position.y)*height, pointsRadius, TRANSPARENT_RED);
             }
         }
         this.drawSkeleton(pose, invertYAxis);
+
+        if(alsoPlotBasePose && this.exerciseStreamController.basePose !== null){
+            for (const [part, position] of Object.entries(this.exerciseStreamController.basePose)){
+                this.webcamCanvas.drawPoint(position.x*width, (invertYAxis-position.y)*height, pointsRadius, TRANSPARENT_RED);
+            }
+            this.drawSkeleton(this.exerciseStreamController.basePose, invertYAxis, TRANSPARENT_WHITE);
+        }
     }
 
-    drawSkeleton(pose, invertYAxis = INVERT_Y_AXIS){
+    drawSkeleton(pose, invertYAxis = INVERT_Y_AXIS, color = "white"){
         const width = this.webcamCanvas.width;
         const height = this.webcamCanvas.height;
         const detectedParts = Object.keys(pose);
@@ -44,7 +52,7 @@ class PosePainter{
                     const p1Y = (invertYAxis-pose[part].y)*height;
                     const p2X = pose[connection[1]].x*width;
                     const p2Y = (invertYAxis-pose[connection[1]].y)*height;
-                    this.webcamCanvas.drawSegment([p1X, p1Y], [p2X, p2Y], "white", DRAWN_POINTS_RADIUS/2)
+                    this.webcamCanvas.drawSegment([p1X, p1Y], [p2X, p2Y], color, DRAWN_POINTS_RADIUS/2)
                 }
             }
         }
