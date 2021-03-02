@@ -24,8 +24,9 @@ export {MAX_FREQUENCY_IN_FRAMES, MAX_FREQ_RANGE, META_INFORMATION_WINDOW,
 
 //Colors
 const TRANSPARENT_RED = 'rgba(255, 99, 132, 0.4)';
+const TRANSPARENT_BLUE = 'rgba(99, 132, 255, 0.4)';
 const TRANSPARENT_WHITE = 'rgba(255, 255, 255, 0.4)'
-export {TRANSPARENT_RED, TRANSPARENT_WHITE};
+export {TRANSPARENT_RED, TRANSPARENT_WHITE, TRANSPARENT_BLUE};
 // Chart constants
 const CHART_LINE_COLOR = 'rgba(255, 99, 132, 1)';
 const CHART_BACKGROUND_COLOR = TRANSPARENT_RED;
@@ -58,9 +59,10 @@ const SKELETON_CONNECTIONS = [["leftShoulder", "rightShoulder"], ["leftShoulder"
 export {MIN_PART_CONFIDENCE, POSENET_CLEANED_PART_NAMES, SKELETON_CONNECTIONS, AVERAGED_PARTS}
 
 //Exercise Estimation Constants
-const PONDER_DIFFERENCE_BY_STD = false;
+const MEASURE_ONLY_ON_PREDOMINANT_AXIS = false;
 const BASE_POSE_CRITERIA = [[DecisionAidSystem.maximizeVisibleBodyParts, 0.5], [DecisionAidSystem.minimizeAveragePositionOnStdDirection, 0.5]];
-export {PONDER_DIFFERENCE_BY_STD, BASE_POSE_CRITERIA};
+const OBJECTIVE_POSE_CRITERIA = [[DecisionAidSystem.maximizeVisibleBodyParts, 0.5], [DecisionAidSystem.maximizeAveragePositionOnStdDirection, 0.5]];
+export {MEASURE_ONLY_ON_PREDOMINANT_AXIS, BASE_POSE_CRITERIA, OBJECTIVE_POSE_CRITERIA};
 
 //Others
 const EPSILON = 0.0001;

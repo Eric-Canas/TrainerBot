@@ -1,12 +1,13 @@
 import {MAX_FREQUENCY_IN_FRAMES, POSENET_CLEANED_PART_NAMES, META_INFORMATION_WINDOW,
-        PONDER_DIFFERENCE_BY_STD, MILISECONDS_BETWEEN_CONSISTENCY_UPDATES, 
-        COUNT_STD_FROM_PERCENTILE, BASE_POSE_CRITERIA, EPSILON} from "../Model/Constants.js";
+        MEASURE_ONLY_ON_PREDOMINANT_AXIS, MILISECONDS_BETWEEN_CONSISTENCY_UPDATES, 
+        COUNT_STD_FROM_PERCENTILE, BASE_POSE_CRITERIA, OBJECTIVE_POSE_CRITERIA} from "../Model/Constants.js";
 import {DecisionAidSystem} from '../Helpers/DecisionAidSystem.js'
+import {mapValue} from '../Helpers/Utils.js'
 
 class ExerciseStreamController{
     constructor(onPushPoseCallbacks = [], checkStdInterval = MILISECONDS_BETWEEN_CONSISTENCY_UPDATES){
         this.basePose = null;
-        //this.objectivePose = null;
+        this.objectivePose = null;
         this.maxQueueLength = MAX_FREQUENCY_IN_FRAMES;
         this.distancesQueue = [];
         this.posesQueue = [];
@@ -15,8 +16,10 @@ class ExerciseStreamController{
         this.yStd = [];
         this.normXStd = [];
         this.normYStd = [];
-        this.basePoseDecisionSystem = new DecisionAidSystem(BASE_POSE_CRITERIA)
-        this.stdprocessID = setInterval(() => this.checkBasePose.call(this), checkStdInterval)
+        this.basePoseDecisionSystem = new DecisionAidSystem(BASE_POSE_CRITERIA);
+        this.objectivePoseDecisionSystem = new DecisionAidSystem(OBJECTIVE_POSE_CRITERIA);
+        
+        this.stdprocessID = setInterval(() => this.optimizeExerciseState.call(this), checkStdInterval)
 
     }
 
@@ -25,9 +28,9 @@ class ExerciseStreamController{
         this.posesQueue.push(pose);
         if (this.basePose == null){
             this.basePose = this.posesQueue[this.posesQueue.length - 1];
-            this.checkBasePose()
+            this.optimizeExerciseState()
         }
-        this.distancesQueue.push(this.distanceToBasePose(pose));
+        this.distancesQueue.push(this.distanceToObjectivePose(pose));
         // Maintain it as a finite size queue
         if (this.posesQueue.length > this.maxQueueLength) {
             this.posesQueue.shift();
@@ -39,33 +42,59 @@ class ExerciseStreamController{
     }
 
     /*Calculates the distance between the pose Map and a base pose.*/
-    distanceToBasePose(pose, ponderByStd = PONDER_DIFFERENCE_BY_STD){
-        const commonVisibleParts = Object.keys(this.basePose).filter(key => Object.keys(pose).includes(key));
+    distanceToObjectivePose(pose, useOnlyPredominantAxis = MEASURE_ONLY_ON_PREDOMINANT_AXIS){
+        //pose = this.objectivePose;
+        const commonVisibleParts = Object.keys(pose).filter(key => Object.keys(this.basePose).includes(key) && Object.keys(this.objectivePose).includes(key));
         //we do not want to calculate a distance since we must avoid to loss the sign.
-        let differenceX = 0;
-        let differenceY = 0;
-        for (const part of commonVisibleParts){
-            differenceX +=  pose[part].x - this.basePose[part].x;
-            differenceY +=  pose[part].y - this.basePose[part].y;
+        
+        const xStd = this.xStd[this.xStd.length-1];
+        const yStd = this.yStd[this.yStd.length-1];
+        let difference = 0;
+        let totalStd = 0;
+        let min, max, partPos, std;
+        if(useOnlyPredominantAxis){
+            for (const part of commonVisibleParts){
+                const [predominantAxis, std] = xStd[part] > yStd[part]? ['x', xStd[part]] : ['y', yStd[part]];
+                const min = Math.min(this.basePose[part][predominantAxis], this.objectivePose[part][predominantAxis]);
+                const max = Math.max(this.basePose[part][predominantAxis], this.objectivePose[part][predominantAxis]);
+                const partPos= pose[part][predominantAxis];
+               
+                difference +=  mapValue(partPos, min, max, 0, std);
+                totalStd += std;
+            }
+        } else {
+            for (const part of commonVisibleParts){
+                const minX = Math.min(this.basePose[part].x, this.objectivePose[part].x);
+                const maxX = Math.max(this.basePose[part].x, this.objectivePose[part].x);
+                const minY = Math.min(this.basePose[part].y, this.objectivePose[part].y);
+                const maxY = Math.max(this.basePose[part].y, this.objectivePose[part].y);
+
+                difference +=  mapValue(pose[part].x, minX, maxX, 0, xStd[part]) + mapValue(pose[part].y, minY, maxY, 0, yStd[part]);
+                totalStd += xStd[part] + yStd[part];
+            }
         }
-        return differenceX+differenceY;
+    return difference/totalStd;
         
     }
 
-    async checkBasePose(){
+    async optimizeExerciseState(){
         if (this.basePose !== null){
             this.updateStd();
             if (this.xStd.length > 0)
-            this.updateBasePose();
+            this.updateBaseAndObjectivePose();
         }
     }
     
-    updateBasePose(){
+    updateBaseAndObjectivePose(){
          //TODO: The best pose is those where the part of the body with more standard deviation is at the lower point. 
         //And preferrably if we are updating during the same exercise, the one closer to the original. It also should have the more body parts visible.
         const basePose = this.basePoseDecisionSystem.decide(this.posesQueue, [this.normXStd[this.normXStd.length-1], this.normYStd[this.normYStd.length-1]])
         if (basePose !== null){
             this.basePose = basePose;
+        }
+        const objectivePose = this.objectivePoseDecisionSystem.decide(this.posesQueue, [this.normXStd[this.normXStd.length-1], this.normYStd[this.normYStd.length-1]])
+        if (objectivePose !== null){
+            this.objectivePose = objectivePose;
         }
 
     }

@@ -1,6 +1,6 @@
 import {INVERT_Y_AXIS, DRAWN_POINTS_RADIUS, SKELETON_CONNECTIONS, 
         SHOW_STD_DIRECTION, POINTS_TO_LINE_THRESHOLD, PLOT_BASE_POSE,
-        TRANSPARENT_RED, TRANSPARENT_WHITE} from "../Model/Constants.js";
+        TRANSPARENT_RED, TRANSPARENT_WHITE, TRANSPARENT_BLUE} from "../Model/Constants.js";
 
 class PosePainter{
     constructor(webcamCanvas, exerciseStreamController){
@@ -8,7 +8,7 @@ class PosePainter{
         this.exerciseStreamController = exerciseStreamController;
     }
     
-    drawPose(pose, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD, alsoPlotBasePose = PLOT_BASE_POSE){
+    drawPose(pose, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD, plotBaseAndObjectivePose = PLOT_BASE_POSE){
         //TODO: Improve it
         const width = this.webcamCanvas.width;
         const height = this.webcamCanvas.height;
@@ -32,12 +32,19 @@ class PosePainter{
             }
         }
         this.drawSkeleton(pose, invertYAxis);
-
-        if(alsoPlotBasePose && this.exerciseStreamController.basePose !== null){
+        
+        if(plotBaseAndObjectivePose && this.exerciseStreamController.basePose !== null){
             for (const [part, position] of Object.entries(this.exerciseStreamController.basePose)){
                 this.webcamCanvas.drawPoint(position.x*width, (invertYAxis-position.y)*height, pointsRadius, TRANSPARENT_RED);
             }
             this.drawSkeleton(this.exerciseStreamController.basePose, invertYAxis, TRANSPARENT_WHITE);
+        }
+        
+        if(plotBaseAndObjectivePose && this.exerciseStreamController.objectivePose !== null){
+            for (const [part, position] of Object.entries(this.exerciseStreamController.objectivePose)){
+                this.webcamCanvas.drawPoint(position.x*width, (invertYAxis-position.y)*height, pointsRadius, TRANSPARENT_BLUE);
+            }
+            this.drawSkeleton(this.exerciseStreamController.objectivePose, invertYAxis, TRANSPARENT_WHITE);
         }
     }
 

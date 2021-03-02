@@ -48,37 +48,41 @@ class DecisionAidSystem{
                 }
             }
             return bestPose;
+            
         } else {
             return null
         }
     }
 
-    // ----------------- All available static criterias -----------------
+    // ----------------- All available criterias -----------------
+
     static maximizeVisibleBodyParts(candidatePoses, weight = 1){
         const maxParts = POSENET_CLEANED_PART_NAMES.length;
         return candidatePoses.map(pose => (Object.keys(pose).length / maxParts)*weight);
     }
 
-    static minimizeAverageYPosition(candidatePoses, weight = 1){
-        let scores = [];
-        for (const pose of candidatePoses){
-            let avg = 0;
-            for (const position of Object.values(pose)){
-                avg += position.y;
-            }
-            scores.push(1-(avg/Object.keys(pose).length));
-        }
-        return scores;
+    static minimizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normXStd, normYStd){
+        return DecisionAidSystem.optimizeAveragePositionOnStdDirection(candidatePoses, weight, normXStd, normYStd, true)
     }
 
-    static minimizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normXStd, normYStd){
+    static maximizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normXStd, normYStd){
+        return DecisionAidSystem.optimizeAveragePositionOnStdDirection(candidatePoses, weight, normXStd, normYStd, false);
+    }
+
+    static optimizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normXStd, normYStd, minimize){
         let scores = [];
+        // If false it is 0, so max score will be at position {x:1, y:1}, if true it is 1, so it will be the complementary ({x:0, y:0})
         for (const pose of candidatePoses){
             let avg = 0;
             for (const [part, position] of Object.entries(pose)){
                 avg += position.x*normXStd[part] + position.y*normYStd[part];
             }
-            scores.push(1-(avg/Object.keys(pose).length));
+            if (minimize){
+                scores.push(1- (avg/Object.keys(pose).length));
+            } else {
+                scores.push((avg/Object.keys(pose).length));
+            }
+            
         }
         return scores;
     }
