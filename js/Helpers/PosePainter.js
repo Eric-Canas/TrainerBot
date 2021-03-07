@@ -3,16 +3,17 @@ import {INVERT_Y_AXIS, DRAWN_POINTS_RADIUS, SKELETON_CONNECTIONS,
         TRANSPARENT_RED, TRANSPARENT_WHITE, TRANSPARENT_BLUE} from "../Model/Constants.js";
 
 class PosePainter{
-    constructor(webcamCanvas, exerciseStreamController){
+    constructor(webcamCanvas, webcamController, exerciseStreamController){
         this.webcamCanvas = webcamCanvas;
+        this.webcamController = webcamController;
         this.exerciseStreamController = exerciseStreamController;
     }
     
     drawPose(pose, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD, plotBaseAndObjectivePose = PLOT_BASE_POSE){
         //TODO: Improve it
-        const width = this.webcamCanvas.width;
-        const height = this.webcamCanvas.height;
-        this.webcamCanvas.clearCanvas();
+        const width = this.webcamController.width;
+        const height = this.webcamController.height;
+        this.webcamCanvas.clearCanvas(width, height);
         if (showStdDirection){
             for (const [part, position] of Object.entries(pose)){
                 let basePositionX =  position.x*width

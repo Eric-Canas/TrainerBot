@@ -41,7 +41,10 @@ const DEFAULT_CANVAS_WIDTH = 600;
 const DRAWN_POINTS_RADIUS = 6;
 const SHOW_STD_DIRECTION = true;
 const PLOT_BASE_POSE = true;
-export {DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH, DRAWN_POINTS_RADIUS, SHOW_STD_DIRECTION, PLOT_BASE_POSE};
+const WEBCAM_FRAME_ID = 'webcamFrame';
+const WEBCAM_CANVAS_ID = 'webcamCanvas'
+export {DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH, DRAWN_POINTS_RADIUS, SHOW_STD_DIRECTION, 
+        PLOT_BASE_POSE, WEBCAM_FRAME_ID, WEBCAM_CANVAS_ID};
 
 
 //PoseNet constants
@@ -60,8 +63,8 @@ export {MIN_PART_CONFIDENCE, POSENET_CLEANED_PART_NAMES, SKELETON_CONNECTIONS, A
 
 //Exercise Estimation Constants
 const MEASURE_ONLY_ON_PREDOMINANT_AXIS = false;
-const BASE_POSE_CRITERIA = [[DecisionAidSystem.maximizeVisibleBodyParts, 0.5], [DecisionAidSystem.minimizeAveragePositionOnStdDirection, 0.5]];
-const OBJECTIVE_POSE_CRITERIA = [[DecisionAidSystem.maximizeVisibleBodyParts, 0.5], [DecisionAidSystem.maximizeAveragePositionOnStdDirection, 0.5]];
+const BASE_POSE_CRITERIA = [[DecisionAidSystem.maximizeVisibleBodyParts, 0.2], [DecisionAidSystem.minimizeAveragePositionOnStdDirection, 0.8]];
+const OBJECTIVE_POSE_CRITERIA = [[DecisionAidSystem.maximizeVisibleBodyParts, 0.2], [DecisionAidSystem.maximizeAveragePositionOnStdDirection, 0.8]];
 export {MEASURE_ONLY_ON_PREDOMINANT_AXIS, BASE_POSE_CRITERIA, OBJECTIVE_POSE_CRITERIA};
 
 //Others
