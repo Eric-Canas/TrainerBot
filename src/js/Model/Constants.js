@@ -12,6 +12,14 @@
 
 import {DecisionAidSystem} from '../Helpers/DecisionAidSystem.js'
 
+
+//HTML IDs
+const WEBCAM_FRAME_ID = 'webcamFrame';
+const WEBCAM_CANVAS_ID = 'webcamCanvas';
+const CHART_CANVAS_ID = 'chartCanvas';
+
+export {WEBCAM_CANVAS_ID, WEBCAM_FRAME_ID, CHART_CANVAS_ID};
+
 // Frequency constants
 const MAX_FREQUENCY_IN_FRAMES = 300;
 const MAX_FREQ_RANGE = [...Array(MAX_FREQUENCY_IN_FRAMES).keys()];
@@ -27,6 +35,7 @@ const TRANSPARENT_RED = 'rgba(255, 99, 132, 0.4)';
 const TRANSPARENT_BLUE = 'rgba(99, 132, 255, 0.4)';
 const TRANSPARENT_WHITE = 'rgba(255, 255, 255, 0.4)'
 export {TRANSPARENT_RED, TRANSPARENT_WHITE, TRANSPARENT_BLUE};
+
 // Chart constants
 const CHART_LINE_COLOR = 'rgba(255, 99, 132, 1)';
 const CHART_BACKGROUND_COLOR = TRANSPARENT_RED;
@@ -41,10 +50,8 @@ const DEFAULT_CANVAS_WIDTH = 600;
 const DRAWN_POINTS_RADIUS = 6;
 const SHOW_STD_DIRECTION = true;
 const PLOT_BASE_POSE = true;
-const WEBCAM_FRAME_ID = 'webcamFrame';
-const WEBCAM_CANVAS_ID = 'webcamCanvas'
 export {DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH, DRAWN_POINTS_RADIUS, SHOW_STD_DIRECTION, 
-        PLOT_BASE_POSE, WEBCAM_FRAME_ID, WEBCAM_CANVAS_ID};
+        PLOT_BASE_POSE};
 
 
 //PoseNet constants

@@ -1,13 +1,13 @@
 import {MAX_FREQ_RANGE, MAX_FREQUENCY_IN_FRAMES} from "../Model/Constants.js";
-import {CHART_LINE_COLOR, CHART_BACKGROUND_COLOR, CHART_LABEL} from "../Model/Constants.js";
+import {CHART_LINE_COLOR, CHART_BACKGROUND_COLOR, CHART_LABEL, CHART_CANVAS_ID} from "../Model/Constants.js";
 
 class FrequencyChart{
-    constructor(canvasID){
+    constructor(canvasID = CHART_CANVAS_ID){
         this.context = document.getElementById(canvasID).getContext('2d');
-        this.chart = this.buildChart();
+        this.chart = this._buildChart();
     }
 
-    buildChart(label = CHART_LABEL, backgroundColor = CHART_BACKGROUND_COLOR, lineColor = CHART_LINE_COLOR){
+    _buildChart(label = CHART_LABEL, backgroundColor = CHART_BACKGROUND_COLOR, lineColor = CHART_LINE_COLOR){
         return new Chart(this.context, {
             type: 'line',
             data: {

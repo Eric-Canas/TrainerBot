@@ -14,11 +14,10 @@ import {DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, WEBCAM_FRAME_ID} from "../M
 class WebcamController{
     constructor(videoID=WEBCAM_FRAME_ID){
         this.videoStream = document.getElementById(videoID);
-        this.webcamCanvas = document.getElementById('webcamCanvas').getContext('2d');
         if (navigator.mediaDevices.getUserMedia) {
             this.webcamPromise = navigator.mediaDevices.getUserMedia({ video: true });
             this.webcamPromise.then(stream => this.videoStream.srcObject = stream)
-                              .catch(error => this.noWebcamAccessError(error));
+                              .catch(error => this._noWebcamAccessError(error));
         
         this.width = 1;
         this.height = 1;
@@ -28,7 +27,7 @@ class WebcamController{
         }
     }
     
-    noWebcamAccessError(error){
+    _noWebcamAccessError(error){
         this.webcamPromise = null;
         this.videoStream.srcObject = null;
         alert(`Impossible to access to the camera :( --> ${error}`);

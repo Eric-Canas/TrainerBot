@@ -4,14 +4,14 @@ import {MAX_FREQUENCY_IN_FRAMES, POSENET_CLEANED_PART_NAMES, META_INFORMATION_WI
 import {DecisionAidSystem} from '../Helpers/DecisionAidSystem.js'
 import {mapValue} from '../Helpers/Utils.js'
 
-class ExerciseStreamController{
-    constructor(onPushPoseCallbacks = [], checkStdInterval = MILISECONDS_BETWEEN_CONSISTENCY_UPDATES){
+class MovementStateController{
+    constructor(onStateUpdatedCallbacks = [], checkStdInterval = MILISECONDS_BETWEEN_CONSISTENCY_UPDATES){
         this.basePose = null;
         this.objectivePose = null;
         this.maxQueueLength = MAX_FREQUENCY_IN_FRAMES;
         this.distancesQueue = [];
         this.posesQueue = [];
-        this.onPushPoseCallbacks = onPushPoseCallbacks;
+        this.onStateUpdatedCallbacks = onStateUpdatedCallbacks;
         this.xStd = [];
         this.yStd = [];
         this.normXStd = [];
@@ -19,16 +19,16 @@ class ExerciseStreamController{
         this.basePoseDecisionSystem = new DecisionAidSystem(BASE_POSE_CRITERIA);
         this.objectivePoseDecisionSystem = new DecisionAidSystem(OBJECTIVE_POSE_CRITERIA);
         
-        this.stdprocessID = setInterval(() => this.optimizeExerciseState.call(this), checkStdInterval)
+        this.stdprocessID = setInterval(() => this.updateStateParameters.call(this), checkStdInterval)
 
     }
 
     /*Pushes a pose in the buffer and calls all the callbacks*/
-    pushPose(pose){
+    updateState(pose){
         this.posesQueue.push(pose);
         if (this.basePose == null){
             this.basePose = this.posesQueue[this.posesQueue.length - 1];
-            this.optimizeExerciseState()
+            this.updateStateParameters()
         }
         this.distancesQueue.push(this.distanceToObjectivePose(pose));
         // Maintain it as a finite size queue
@@ -36,7 +36,7 @@ class ExerciseStreamController{
             this.posesQueue.shift();
             this.distancesQueue.shift();
         }
-        for (const callback of this.onPushPoseCallbacks){
+        for (const callback of this.onStateUpdatedCallbacks){
             callback(this.distancesQueue);
         }
     }
@@ -77,15 +77,15 @@ class ExerciseStreamController{
         
     }
 
-    async optimizeExerciseState(){
+    async updateStateParameters(){
         if (this.basePose !== null){
             this.updateStd();
             if (this.xStd.length > 0)
-            this.updateBaseAndObjectivePose();
+            this.optimizeBaseAndObjectivePose();
         }
     }
     
-    updateBaseAndObjectivePose(){
+    optimizeBaseAndObjectivePose(){
          //TODO: The best pose is those where the part of the body with more standard deviation is at the lower point. 
         //And preferrably if we are updating during the same exercise, the one closer to the original. It also should have the more body parts visible.
         const basePose = this.basePoseDecisionSystem.decide(this.posesQueue, [this.normXStd[this.normXStd.length-1], this.normYStd[this.normYStd.length-1]])
@@ -141,4 +141,4 @@ class ExerciseStreamController{
 
 }
 
-export {ExerciseStreamController};
+export {MovementStateController};

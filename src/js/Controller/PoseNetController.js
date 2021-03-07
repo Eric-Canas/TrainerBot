@@ -27,9 +27,8 @@ class PoseNetController{
         this.webcamController = webcamController;
         this.callbacksOnPoseCaptured = callbacksOnPoseCaptured;
         this.poseNet = null;
-        this.loadPoseNet();
-        this.lastPoseCaptured = null;
-        this.poseEvent = new CustomEvent('posecaptured', {pose : this.lastPoseCaptured})
+        this._loadPoseNet();
+        this._poseEvent = new CustomEvent('posecaptured', {pose : this.lastPoseCaptured})
         this.framesWithoutDetections = 0;
         document.addEventListener('posecaptured', this.capturePose.bind(this), false);
     }
@@ -37,7 +36,7 @@ class PoseNetController{
     /**
      * Loads posenet and assign it to this.poseNet. Then (once videoStream is loaded) starts the capturePose bucle.
      */
-    async loadPoseNet(){
+    async _loadPoseNet(){
         this.poseNet = await posenet.load();
         await this.webcamController.videoStream.addEventListener('loadeddata', event => this.capturePose());
     }
@@ -56,17 +55,16 @@ class PoseNetController{
         //TODO: Maybe it is necessary to verify here that the videoStream data is accessible
         let pose = await this.poseNet.estimateSinglePose(this.webcamController.videoStream);
         //Transform pose into an object only containing the parts with higher confidence than a threshold.
-        pose = this.cleanPose(pose, minConfidence);
+        pose = this._cleanPose(pose, minConfidence);
         if (Object.keys(pose).length > 0){
-            this.lastPoseCaptured = pose;
             for (const callback of this.callbacksOnPoseCaptured){ 
-                callback(this.lastPoseCaptured);
+                callback(pose);
             }
             this.framesWithoutDetections = 0;
         } else {
             this.framesWithoutDetections++;
         }
-        document.dispatchEvent(this.poseEvent);
+        document.dispatchEvent(this._poseEvent);
     }
 
     /**
@@ -81,7 +79,7 @@ class PoseNetController{
      * 
      * @return {Object} : Afore-described object with the syntax {partName : {xPos, yPos}}.
      */
-    cleanPose(pose, minConfidence = MIN_PART_CONFIDENCE, invertYAxis = INVERT_Y_AXIS) {
+    _cleanPose(pose, minConfidence = MIN_PART_CONFIDENCE, invertYAxis = INVERT_Y_AXIS) {
         let cleanPose = {};
         for (const part of pose.keypoints){
             if (part.score > minConfidence){

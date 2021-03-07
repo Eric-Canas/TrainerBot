@@ -11,7 +11,7 @@
  * @since  0.0.1
  */
 
-class ExerciseController{
+class SessionController{
     constructor(poseNetController, repetitionCalculator){
         this.poseNetController = poseNetController;
         this.repetitionCalculator = repetitionCalculator;
@@ -21,4 +21,4 @@ class ExerciseController{
 
 }
 
-export {ExerciseController};
+export {SessionController};

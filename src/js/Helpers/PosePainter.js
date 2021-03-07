@@ -3,23 +3,22 @@ import {INVERT_Y_AXIS, DRAWN_POINTS_RADIUS, SKELETON_CONNECTIONS,
         TRANSPARENT_RED, TRANSPARENT_WHITE, TRANSPARENT_BLUE} from "../Model/Constants.js";
 
 class PosePainter{
-    constructor(webcamCanvas, webcamController, exerciseStreamController){
+    constructor(webcamCanvas, movementStateController){
         this.webcamCanvas = webcamCanvas;
-        this.webcamController = webcamController;
-        this.exerciseStreamController = exerciseStreamController;
+        this.movementStateController = movementStateController;
     }
     
     drawPose(pose, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD, plotBaseAndObjectivePose = PLOT_BASE_POSE){
         //TODO: Improve it
-        const width = this.webcamController.width;
-        const height = this.webcamController.height;
+        const width = this.webcamCanvas.canvas.width;
+        const height = this.webcamCanvas.canvas.height;
         this.webcamCanvas.clearCanvas(width, height);
         if (showStdDirection){
             for (const [part, position] of Object.entries(pose)){
                 let basePositionX =  position.x*width
                 let basePositionY = (invertYAxis-position.y)*height
-                let xStd = this.exerciseStreamController.xStd[this.exerciseStreamController.xStd.length-1][part];
-                let yStd = this.exerciseStreamController.yStd[this.exerciseStreamController.yStd.length-1][part];
+                let xStd = this.movementStateController.xStd[this.movementStateController.xStd.length-1][part];
+                let yStd = this.movementStateController.yStd[this.movementStateController.yStd.length-1][part];
                 if ((xStd > pointToLineThreshold) || (yStd > pointToLineThreshold)){
                     [xStd, yStd] = [(xStd/(Math.max(xStd, yStd)+0.0001))*pointsRadius*2, (yStd/(Math.max(xStd, yStd)+0.0001))*pointsRadius*2]
                     this.webcamCanvas.drawSegment([basePositionX-xStd, basePositionY-yStd], [basePositionX+xStd, basePositionY+yStd], this.selectColorForPart(part), pointsRadius);
@@ -34,18 +33,18 @@ class PosePainter{
         }
         this.drawSkeleton(pose, invertYAxis);
         
-        if(plotBaseAndObjectivePose && this.exerciseStreamController.basePose !== null){
-            for (const [part, position] of Object.entries(this.exerciseStreamController.basePose)){
+        if(plotBaseAndObjectivePose && this.movementStateController.basePose !== null){
+            for (const [part, position] of Object.entries(this.movementStateController.basePose)){
                 this.webcamCanvas.drawPoint(position.x*width, (invertYAxis-position.y)*height, pointsRadius, TRANSPARENT_RED);
             }
-            this.drawSkeleton(this.exerciseStreamController.basePose, invertYAxis, TRANSPARENT_WHITE);
+            this.drawSkeleton(this.movementStateController.basePose, invertYAxis, TRANSPARENT_WHITE);
         }
         
-        if(plotBaseAndObjectivePose && this.exerciseStreamController.objectivePose !== null){
-            for (const [part, position] of Object.entries(this.exerciseStreamController.objectivePose)){
+        if(plotBaseAndObjectivePose && this.movementStateController.objectivePose !== null){
+            for (const [part, position] of Object.entries(this.movementStateController.objectivePose)){
                 this.webcamCanvas.drawPoint(position.x*width, (invertYAxis-position.y)*height, pointsRadius, TRANSPARENT_BLUE);
             }
-            this.drawSkeleton(this.exerciseStreamController.objectivePose, invertYAxis, TRANSPARENT_WHITE);
+            this.drawSkeleton(this.movementStateController.objectivePose, invertYAxis, TRANSPARENT_WHITE);
         }
     }
 
@@ -67,8 +66,8 @@ class PosePainter{
     }
 
     selectColorForPart(part){
-    const xStd = this.exerciseStreamController.xStd[this.exerciseStreamController.xStd.length-1][part];
-    const yStd = this.exerciseStreamController.yStd[this.exerciseStreamController.yStd.length-1][part];
+    const xStd = this.movementStateController.xStd[this.movementStateController.xStd.length-1][part];
+    const yStd = this.movementStateController.yStd[this.movementStateController.yStd.length-1][part];
     const i = (((xStd + yStd)/2) * 255 / 0.5);
     const r = Math.round(Math.sin(0.024 * i + 0) * 127 + 128);
     const g = Math.round(Math.sin(0.024 * i + 2) * 127 + 128);
