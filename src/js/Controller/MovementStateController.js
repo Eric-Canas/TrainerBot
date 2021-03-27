@@ -5,13 +5,14 @@ import {DecisionAidSystem} from '../Helpers/DecisionAidSystem.js'
 import {mapValue} from '../Helpers/Utils.js'
 
 class MovementStateController{
-    constructor(onStateUpdatedCallbacks = [], checkStdInterval = MILISECONDS_BETWEEN_CONSISTENCY_UPDATES){
+    constructor(sessionHistory, onStateUpdatedCallbacks = [], checkStdInterval = MILISECONDS_BETWEEN_CONSISTENCY_UPDATES){
         this.basePose = null;
         this.objectivePose = null;
         this.maxQueueLength = MAX_FREQUENCY_IN_FRAMES;
         this.distancesQueue = [];
         this.posesQueue = [];
         this.onStateUpdatedCallbacks = onStateUpdatedCallbacks;
+        this.sessionHistory = sessionHistory;
         this.xStd = [];
         this.yStd = [];
         this.normXStd = [];
@@ -130,6 +131,8 @@ class MovementStateController{
         this.normXStd.push(normXStd);
         this.normYStd.push(normYStd)
         if (this.xStd.length > META_INFORMATION_WINDOW){
+            this.sessionHistory.xStd.push(this.xStd[0]);
+            this.sessionHistory.yStd.push(this.yStd[0]);
             this.xStd.shift();
             this.yStd.shift();
             this.normXStd.shift();

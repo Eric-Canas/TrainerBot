@@ -18,6 +18,7 @@
  import {FrequencyChart} from "../View/FrequencyChart.js";
  import {PosePainter} from "../Helpers/PosePainter.js";
  import {PoseNetController} from "../Controller/PoseNetController.js";
+ import {SessionHistory} from "../Helpers/DatasetImprovement/SessionHistory.js";
 
  class SessionController{
     //To avoid the creation of diverse SessionControllers, it is a singleton
@@ -35,7 +36,8 @@
             this.onUpdatedStateCallbacks.push(this.frequencyChart.updateChart.bind(this.frequencyChart));
             this.webcamController = new WebcamController();
             this.poseNetController = new PoseNetController(this.webcamController);
-            this.movementStateController = new MovementStateController(this.onUpdatedStateCallbacks);
+            this.sessionHistory = new SessionHistory();
+            this.movementStateController = new MovementStateController(this.sessionHistory, this.onUpdatedStateCallbacks);
             this.posePainter = new PosePainter(this.webcamCanvas, this.movementStateController);
             this.poseNetController.callbacksOnPoseCaptured.push(this.movementStateController.updateState.bind(this.movementStateController));
             this.poseNetController.callbacksOnPoseCaptured.push(this.posePainter.drawPose.bind(this.posePainter));
@@ -44,20 +46,7 @@
         }
     }
 
-    beginSession(){
-        this.onUpdatedStateCallbacks = [];
-        // Set Views
-        this.webcamCanvas = new WebcamCanvas();
-        this.frequencyChart = new FrequencyChart();
-        // Views callbacks
-        this.onUpdatedStateCallbacks.push(this.frequencyChart.updateChart.bind(this.frequencyChart));
-        this.webcamController = new WebcamController();
-        this.poseNetController = new PoseNetController(this.webcamController);
-        this.movementStateController = new MovementStateController(this.onUpdatedStateCallbacks);
-        this.posePainter = new PosePainter(this.webcamCanvas, this.movementStateController);
-        this.poseNetController.callbacksOnPoseCaptured.push(this.movementStateController.updateState.bind(this.movementStateController));
-        this.poseNetController.callbacksOnPoseCaptured.push(this.posePainter.drawPose.bind(this.posePainter));
-    }
+    
     endSession(){
         console.log("END")
     }
