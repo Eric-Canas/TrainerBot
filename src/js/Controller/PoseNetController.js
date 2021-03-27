@@ -27,6 +27,7 @@ class PoseNetController{
         this.webcamController = webcamController;
         this.callbacksOnPoseCaptured = callbacksOnPoseCaptured;
         this.poseNet = null;
+        this._disable = false;
         this._loadPoseNet();
         this._poseEvent = new CustomEvent('posecaptured', {pose : this.lastPoseCaptured})
         this.framesWithoutDetections = 0;
@@ -41,6 +42,15 @@ class PoseNetController{
         await this.webcamController.videoStream.addEventListener('loadeddata', event => this.capturePose());
     }
 
+    disable(){
+        this._disable = true;
+    }
+    enable(){
+        if (this._disable){
+            this._disable = false;
+            document.dispatchEvent(this._poseEvent);
+        }
+    }
     /**
      * Estimate a single position from the current frame in the videoStream. 
      * Then, it cleans the pose: Sets it as an object with the syntax {partName : {xPos, yPos}}, which only
@@ -64,7 +74,9 @@ class PoseNetController{
         } else {
             this.framesWithoutDetections++;
         }
-        document.dispatchEvent(this._poseEvent);
+        if (!this._disable){
+            document.dispatchEvent(this._poseEvent);
+        }
     }
 
     /**

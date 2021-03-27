@@ -49,8 +49,8 @@ class PosePainter{
     }
 
     drawSkeleton(pose, invertYAxis = INVERT_Y_AXIS, color = "white"){
-        const width = this.webcamCanvas.width;
-        const height = this.webcamCanvas.height;
+        const width = this.webcamCanvas.canvas.width;
+        const height = this.webcamCanvas.canvas.height;
         const detectedParts = Object.keys(pose);
         for (const part of detectedParts){
             for (const connection of SKELETON_CONNECTIONS){
@@ -59,7 +59,7 @@ class PosePainter{
                     const p1Y = (invertYAxis-pose[part].y)*height;
                     const p2X = pose[connection[1]].x*width;
                     const p2Y = (invertYAxis-pose[connection[1]].y)*height;
-                    this.webcamCanvas.drawSegment([p1X, p1Y], [p2X, p2Y], color, DRAWN_POINTS_RADIUS/2)
+                    this.webcamCanvas.drawSegment([p1X, p1Y], [p2X, p2Y], color, DRAWN_POINTS_RADIUS/2);
                 }
             }
         }

@@ -17,8 +17,10 @@ import {DecisionAidSystem} from '../Helpers/DecisionAidSystem.js'
 const WEBCAM_FRAME_ID = 'webcamFrame';
 const WEBCAM_CANVAS_ID = 'webcamCanvas';
 const CHART_CANVAS_ID = 'chartCanvas';
+const BEGIN_SESSION_BUTTON_ID = 'beginSessionButtonId';
+const END_SESSION_BUTTON_ID = 'endSessionButtonId';
 
-export {WEBCAM_CANVAS_ID, WEBCAM_FRAME_ID, CHART_CANVAS_ID};
+export {WEBCAM_CANVAS_ID, WEBCAM_FRAME_ID, CHART_CANVAS_ID, END_SESSION_BUTTON_ID, BEGIN_SESSION_BUTTON_ID};
 
 // Frequency constants
 const MAX_FREQUENCY_IN_FRAMES = 300;
