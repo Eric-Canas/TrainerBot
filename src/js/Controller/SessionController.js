@@ -11,7 +11,7 @@
  * @since  0.0.1
  */
 
- import {END_SESSION_BUTTON_ID} from "../Model/Constants.js";
+ import {END_SESSION_BUTTON_ID, SAVE_DATASET_CANVAS_ID} from "../Model/Constants.js";
  import {WebcamController} from "../Controller/WebcamController.js";
  import {WebcamCanvas} from "../View/WebcamCanvas.js";
  import {MovementStateController} from "../Controller/MovementStateController.js";
@@ -19,12 +19,13 @@
  import {PosePainter} from "../Helpers/PosePainter.js";
  import {PoseNetController} from "../Controller/PoseNetController.js";
  import {SessionHistory} from "../Helpers/DatasetImprovement/SessionHistory.js";
+ import {DataTagging} from "../Helpers/DatasetImprovement/DataTagging.js";
 
  class SessionController{
     //To avoid the creation of diverse SessionControllers, it is a singleton
     static instance;
 
-    constructor(endSessionButtonID = END_SESSION_BUTTON_ID){
+    constructor(endSessionButtonID = END_SESSION_BUTTON_ID, saveDatasetCanvasID = SAVE_DATASET_CANVAS_ID){
         if (this.constructor.instance){
             return instance
         } else {
@@ -41,6 +42,9 @@
             this.posePainter = new PosePainter(this.webcamCanvas, this.movementStateController);
             this.poseNetController.callbacksOnPoseCaptured.push(this.movementStateController.updateState.bind(this.movementStateController));
             this.poseNetController.callbacksOnPoseCaptured.push(this.posePainter.drawPose.bind(this.posePainter));
+            
+            this.dataTagging = new DataTagging(this.sessionHistory, this.posePainter)
+            this.saveDatasetCanvasID = saveDatasetCanvasID;
             document.getElementById(endSessionButtonID).addEventListener('click', this.endSession.bind(this), false);
             this.constructor.instance = this
         }
@@ -48,7 +52,11 @@
 
     
     endSession(){
-        console.log("END")
+        this.poseNetController.disable();
+        this.webcamCanvas.canvas.style.background = "black"
+        this.dataTagging.startTagging();
+
+        
     }
     
 

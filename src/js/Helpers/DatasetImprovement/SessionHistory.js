@@ -1,7 +1,10 @@
 class SessionHistory{
     constructor(){
-        this.xStd = [];
-        this.yStd = [];
+        this.poses = [];
+    }
+    
+    push(element){
+        this.poses.push(element);
     }
 }
 export {SessionHistory};

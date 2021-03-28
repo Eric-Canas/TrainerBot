@@ -6,8 +6,13 @@ class WebcamCanvas{
         this.context = this.canvas.getContext('2d');
     }
 
-    clearCanvas(width, height){
-        this.context.clearRect(0, 0, width, height);
+    changeCanvas(newCanvasID){
+        this.canvas = document.getElementById(newCanvasID);
+        this.context = this.canvas.getContext('2d');
+    }
+
+    clearCanvas(){
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     drawPoint(x, y, radius, color){

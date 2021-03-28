@@ -8,7 +8,7 @@ class PosePainter{
         this.movementStateController = movementStateController;
     }
     
-    drawPose(pose, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD, plotBaseAndObjectivePose = PLOT_BASE_POSE){
+    drawPose(pose, xStd=null, yStd=null, plotBaseAndObjectivePose = PLOT_BASE_POSE, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD){
         //TODO: Improve it
         const width = this.webcamCanvas.canvas.width;
         const height = this.webcamCanvas.canvas.height;
@@ -17,8 +17,12 @@ class PosePainter{
             for (const [part, position] of Object.entries(pose)){
                 let basePositionX =  position.x*width
                 let basePositionY = (invertYAxis-position.y)*height
-                let xStd = this.movementStateController.xStd[this.movementStateController.xStd.length-1][part];
-                let yStd = this.movementStateController.yStd[this.movementStateController.yStd.length-1][part];
+                if (xStd===null){
+                    xStd = this.movementStateController.xStd[this.movementStateController.xStd.length-1][part];
+                }
+                if (yStd === null){
+                    yStd = this.movementStateController.yStd[this.movementStateController.yStd.length-1][part];
+                }
                 if ((xStd > pointToLineThreshold) || (yStd > pointToLineThreshold)){
                     [xStd, yStd] = [(xStd/(Math.max(xStd, yStd)+0.0001))*pointsRadius*2, (yStd/(Math.max(xStd, yStd)+0.0001))*pointsRadius*2]
                     this.webcamCanvas.drawSegment([basePositionX-xStd, basePositionY-yStd], [basePositionX+xStd, basePositionY+yStd], this.selectColorForPart(part), pointsRadius);

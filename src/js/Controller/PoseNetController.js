@@ -62,20 +62,20 @@ class PoseNetController{
      *                                Parts with low confidence use to be not present in the image. Default: MIN_PART_CONFIDENCE.
      */
     async capturePose(event, minConfidence = MIN_PART_CONFIDENCE){
-        //TODO: Maybe it is necessary to verify here that the videoStream data is accessible
-        let pose = await this.poseNet.estimateSinglePose(this.webcamController.videoStream);
-        //Transform pose into an object only containing the parts with higher confidence than a threshold.
-        pose = this._cleanPose(pose, minConfidence);
-        if (Object.keys(pose).length > 0){
-            for (const callback of this.callbacksOnPoseCaptured){ 
-                callback(pose);
-            }
-            this.framesWithoutDetections = 0;
-        } else {
-            this.framesWithoutDetections++;
-        }
         if (!this._disable){
-            document.dispatchEvent(this._poseEvent);
+            //TODO: Maybe it is necessary to verify here that the videoStream data is accessible
+            let pose = await this.poseNet.estimateSinglePose(this.webcamController.videoStream);
+            //Transform pose into an object only containing the parts with higher confidence than a threshold.
+            pose = this._cleanPose(pose, minConfidence);
+            if (Object.keys(pose).length > 0){
+                for (const callback of this.callbacksOnPoseCaptured){ 
+                    callback(pose);
+                }
+                this.framesWithoutDetections = 0;
+            } else {
+                this.framesWithoutDetections++;
+            }
+                document.dispatchEvent(this._poseEvent);
         }
     }
 

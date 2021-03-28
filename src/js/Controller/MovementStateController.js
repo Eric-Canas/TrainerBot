@@ -40,6 +40,9 @@ class MovementStateController{
         for (const callback of this.onStateUpdatedCallbacks){
             callback(this.distancesQueue);
         }
+        let historyEntry = {pose : pose, xStd : this.xStd[this.xStd.length-1], yStd : this.yStd[this.xStd.length-1],
+                            normXStd : this.normXStd[this.normXStd.length-1], normYStd : this.normYStd[this.normYStd.length-1]};
+        this.sessionHistory.push(historyEntry);
     }
 
     /*Calculates the distance between the pose Map and a base pose.*/
@@ -52,7 +55,6 @@ class MovementStateController{
         const yStd = this.yStd[this.yStd.length-1];
         let difference = 0;
         let totalStd = 0;
-        let min, max, partPos, std;
         if(useOnlyPredominantAxis){
             for (const part of commonVisibleParts){
                 const [predominantAxis, std] = xStd[part] > yStd[part]? ['x', xStd[part]] : ['y', yStd[part]];
@@ -131,8 +133,6 @@ class MovementStateController{
         this.normXStd.push(normXStd);
         this.normYStd.push(normYStd)
         if (this.xStd.length > META_INFORMATION_WINDOW){
-            this.sessionHistory.xStd.push(this.xStd[0]);
-            this.sessionHistory.yStd.push(this.yStd[0]);
             this.xStd.shift();
             this.yStd.shift();
             this.normXStd.shift();
