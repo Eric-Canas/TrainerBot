@@ -61,21 +61,21 @@ class DecisionAidSystem{
         return candidatePoses.map(pose => (Object.keys(pose).length / maxParts)*weight);
     }
 
-    static minimizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normXStd, normYStd){
-        return DecisionAidSystem.optimizeAveragePositionOnStdDirection(candidatePoses, weight, normXStd, normYStd, true)
+    static minimizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normStd){
+        return DecisionAidSystem.optimizeAveragePositionOnStdDirection(candidatePoses, weight, normStd, true)
     }
 
-    static maximizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normXStd, normYStd){
-        return DecisionAidSystem.optimizeAveragePositionOnStdDirection(candidatePoses, weight, normXStd, normYStd, false);
+    static maximizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normStd){
+        return DecisionAidSystem.optimizeAveragePositionOnStdDirection(candidatePoses, weight, normStd, false);
     }
 
-    static optimizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normXStd, normYStd, minimize){
+    static optimizeAveragePositionOnStdDirection(candidatePoses, weight = 1, normStd, minimize){
         let scores = [];
         // If false it is 0, so max score will be at position {x:1, y:1}, if true it is 1, so it will be the complementary ({x:0, y:0})
         for (const pose of candidatePoses){
             let avg = 0;
             for (const [part, position] of Object.entries(pose)){
-                avg += position.x*normXStd[part] + position.y*normYStd[part];
+                avg += position.x*normStd[part].x + position.y*normStd[part].y;
             }
             if (minimize){
                 scores.push(1- (avg/Object.keys(pose).length));

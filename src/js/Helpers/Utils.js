@@ -7,8 +7,6 @@ function mapValue(x, in_min, in_max, out_min = 0, out_max = 1) {
 export {mapValue};
 
 function saveJSON(JSONObject, fileName='session.txt', filePath = pathJoin(['../..', DATASET_PATH]), type='text/plain', notOverride = true){
-    let element = document.createElement("a");
-    console.log(filePath);
     const file = new Blob(JSONObject, {type: type});
     saveFile(file, fileName, filePath, type, notOverride)
 
@@ -23,6 +21,7 @@ function saveCSV(csvListOfLists, fileName='session.txt', filePath = pathJoin(['.
 }
 export {saveCSV};
 function saveFile(encodedHref, fileName='session.txt', filePath = pathJoin(['../..', DATASET_PATH]), type='text/plain', notOverride = true){
+  let element = document.createElement("a");
   element.href = encodedHref;
   if (notOverride){
     const fileNameParts = fileName.split('.');

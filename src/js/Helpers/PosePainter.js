@@ -8,7 +8,7 @@ class PosePainter{
         this.movementStateController = movementStateController;
     }
     
-    drawPose(pose, xStd=null, yStd=null, plotBaseAndObjectivePose = PLOT_BASE_POSE, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD){
+    drawPose(pose, std=null, plotBaseAndObjectivePose = PLOT_BASE_POSE, invertYAxis = INVERT_Y_AXIS, pointsRadius = DRAWN_POINTS_RADIUS, showStdDirection = SHOW_STD_DIRECTION, pointToLineThreshold = POINTS_TO_LINE_THRESHOLD){
         //TODO: Improve it
         const width = this.webcamCanvas.canvas.width;
         const height = this.webcamCanvas.canvas.height;
@@ -17,14 +17,13 @@ class PosePainter{
             for (const [part, position] of Object.entries(pose)){
                 let basePositionX =  position.x*width
                 let basePositionY = (invertYAxis-position.y)*height
-                if (xStd===null){
-                    xStd = this.movementStateController.xStd[this.movementStateController.xStd.length-1][part];
+                if (std===null){
+                    std = this.movementStateController.std[this.movementStateController.std.length-1][part];
                 }
-                if (yStd === null){
-                    yStd = this.movementStateController.yStd[this.movementStateController.yStd.length-1][part];
-                }
-                if ((xStd > pointToLineThreshold) || (yStd > pointToLineThreshold)){
-                    [xStd, yStd] = [(xStd/(Math.max(xStd, yStd)+0.0001))*pointsRadius*2, (yStd/(Math.max(xStd, yStd)+0.0001))*pointsRadius*2]
+                if ((std.x > pointToLineThreshold) || (std.y > pointToLineThreshold)){
+                    let xStd = null;
+                    let yStd = null;
+                    [xStd, yStd] = [(std.x/(Math.max(std.x, std.y)+0.0001))*pointsRadius*2, (std.y/(Math.max(std.x, std.y)+0.0001))*pointsRadius*2]
                     this.webcamCanvas.drawSegment([basePositionX-xStd, basePositionY-yStd], [basePositionX+xStd, basePositionY+yStd], this.selectColorForPart(part), pointsRadius);
                 } else {
                     this.webcamCanvas.drawPoint(basePositionX, basePositionY, pointsRadius, this.selectColorForPart(part));
@@ -70,15 +69,14 @@ class PosePainter{
     }
 
     selectColorForPart(part){
-    const xStd = this.movementStateController.xStd[this.movementStateController.xStd.length-1][part];
-    const yStd = this.movementStateController.yStd[this.movementStateController.yStd.length-1][part];
-    const i = (((xStd + yStd)/2) * 255 / 0.5);
+    const std = this.movementStateController.std[this.movementStateController.std.length-1][part];
+    const i = (((std.x + std.y)/2) * 255 / 0.5);
     const r = Math.round(Math.sin(0.024 * i + 0) * 127 + 128);
     const g = Math.round(Math.sin(0.024 * i + 2) * 127 + 128);
     const b = Math.round(Math.sin(0.024 * i + 4) * 127 + 128);
     return 'rgb(' + r + ',' + g + ',' + b + ')';
     /* //Version for going from green to red
-    const i = 128 - (((xStd + yStd)/2) * 128 / (0.5));
+    const i = 128 - (((std.x + std.y)/2) * 128 / (0.5));
     return 'hsl(' + i + ',100%,50%)';
     */
     }

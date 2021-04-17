@@ -13,10 +13,8 @@ class MovementStateController{
         this.posesQueue = [];
         this.onStateUpdatedCallbacks = onStateUpdatedCallbacks;
         this.sessionHistory = sessionHistory;
-        this.xStd = [];
-        this.yStd = [];
-        this.normXStd = [];
-        this.normYStd = [];
+        this.std = [];
+        this.normStd = [];
         this.basePoseDecisionSystem = new DecisionAidSystem(BASE_POSE_CRITERIA);
         this.objectivePoseDecisionSystem = new DecisionAidSystem(OBJECTIVE_POSE_CRITERIA);
         
@@ -40,10 +38,10 @@ class MovementStateController{
         for (const callback of this.onStateUpdatedCallbacks){
             callback(this.distancesQueue);
         }
-        if (pose !== null && this.basePose !== null && this.objectivePose !== null && this.xStd !== this.xStd[this.xStd.length-1] && this.yStd[this.xStd.length-1] !== null
-            && this.normXStd[this.normXStd.length-1] && this.normYStd[this.normYStd.length-1]){
-            let historyEntry = {pose : pose, basePose : this.basePose, objectivePose : this.objectivePose, xStd : this.xStd[this.xStd.length-1], yStd : this.yStd[this.xStd.length-1],
-                                normXStd : this.normXStd[this.normXStd.length-1], normYStd : this.normYStd[this.normYStd.length-1]};
+        if (pose !== null && this.basePose !== null && this.objectivePose !== null && this.std[this.std.length-1] !== null
+            && this.normStd[this.normStd.length-1]){
+            let historyEntry = {pose : pose, basePose : this.basePose, objectivePose : this.objectivePose, std : this.std[this.std.length-1],
+                                normStd : this.normStd[this.normStd.length-1]};
             this.sessionHistory.push(historyEntry);
         }
     }
@@ -54,13 +52,12 @@ class MovementStateController{
         const commonVisibleParts = Object.keys(pose).filter(key => Object.keys(this.basePose).includes(key) && Object.keys(this.objectivePose).includes(key));
         //we do not want to calculate a distance since we must avoid to loss the sign.
         
-        const xStd = this.xStd[this.xStd.length-1];
-        const yStd = this.yStd[this.yStd.length-1];
+        const std = this.std[this.std.length-1];
         let difference = 0;
         let totalStd = 0;
         if(useOnlyPredominantAxis){
             for (const part of commonVisibleParts){
-                const [predominantAxis, std] = xStd[part] > yStd[part]? ['x', xStd[part]] : ['y', yStd[part]];
+                const [predominantAxis, std] = std[part].x > std[part].y? ['x', std[part].x] : ['y', std[part].y];
                 const min = Math.min(this.basePose[part][predominantAxis], this.objectivePose[part][predominantAxis]);
                 const max = Math.max(this.basePose[part][predominantAxis], this.objectivePose[part][predominantAxis]);
                 const partPos= pose[part][predominantAxis];
@@ -75,8 +72,8 @@ class MovementStateController{
                 const minY = Math.min(this.basePose[part].y, this.objectivePose[part].y);
                 const maxY = Math.max(this.basePose[part].y, this.objectivePose[part].y);
 
-                difference +=  mapValue(pose[part].x, minX, maxX, 0, xStd[part]) + mapValue(pose[part].y, minY, maxY, 0, yStd[part]);
-                totalStd += xStd[part] + yStd[part];
+                difference +=  mapValue(pose[part].x, minX, maxX, 0, std[part].x) + mapValue(pose[part].y, minY, maxY, 0, std[part].y);
+                totalStd += std[part].x + std[part].y;
             }
         }
     return difference/totalStd;
@@ -86,7 +83,7 @@ class MovementStateController{
     async updateStateParameters(){
         if (this.basePose !== null){
             this.updateStd();
-            if (this.xStd.length > 0)
+            if (this.std.length > 0)
             this.optimizeBaseAndObjectivePose();
         }
     }
@@ -94,11 +91,11 @@ class MovementStateController{
     optimizeBaseAndObjectivePose(){
          //TODO: The best pose is those where the part of the body with more standard deviation is at the lower point. 
         //And preferrably if we are updating during the same exercise, the one closer to the original. It also should have the more body parts visible.
-        const basePose = this.basePoseDecisionSystem.decide(this.posesQueue, [this.normXStd[this.normXStd.length-1], this.normYStd[this.normYStd.length-1]])
+        const basePose = this.basePoseDecisionSystem.decide(this.posesQueue, [this.normStd[this.normStd.length-1]])
         if (basePose !== null){
             this.basePose = basePose;
         }
-        const objectivePose = this.objectivePoseDecisionSystem.decide(this.posesQueue, [this.normXStd[this.normXStd.length-1], this.normYStd[this.normYStd.length-1]])
+        const objectivePose = this.objectivePoseDecisionSystem.decide(this.posesQueue, [this.normStd[this.normStd.length-1]])
         if (objectivePose !== null){
             this.objectivePose = objectivePose;
         }
@@ -106,10 +103,10 @@ class MovementStateController{
     }
     
     updateStd(startAtPercentile = COUNT_STD_FROM_PERCENTILE){
-        let xStd = {}
-        let yStd = {}
-        let normXStd = [];
-        let normYStd = [];
+        let xStd = {};
+        let yStd = {};
+        let std = {};
+        let normStd = {};
         const poseQueueToUse = this.posesQueue.slice(~~(this.posesQueue.length*startAtPercentile));
         for (const part of POSENET_CLEANED_PART_NAMES){
             xStd[part] = [];
@@ -124,22 +121,19 @@ class MovementStateController{
         }
         
         for(const part of Object.keys(xStd)){
-            xStd[part] = xStd[part].length > 0 ? math.std(xStd[part]) : 0;
-            yStd[part] = yStd[part].length > 0 ? math.std(yStd[part]) : 0;
-            const stdSum = math.sum(xStd[part], yStd[part])
-            normXStd[part] = stdSum > 0? (xStd[part])/stdSum : 0.5;
-            normYStd[part] = stdSum > 0? (yStd[part])/stdSum : 0.5;
+            std[part] = {x : xStd[part].length > 0 ? math.std(xStd[part]) : 0,
+                         y : yStd[part].length > 0 ? math.std(yStd[part]) : 0};
+            const stdSum = math.sum(std[part].x, std[part].y)
+            normStd[part] = {x : stdSum > 0? (std[part].x)/stdSum : 0.5, 
+                             y : stdSum > 0? (std[part].y)/stdSum : 0.5}
+            
         }
 
-        this.xStd.push(xStd)
-        this.yStd.push(yStd)
-        this.normXStd.push(normXStd);
-        this.normYStd.push(normYStd)
-        if (this.xStd.length > META_INFORMATION_WINDOW){
-            this.xStd.shift();
-            this.yStd.shift();
-            this.normXStd.shift();
-            this.normYStd.shift();
+        this.std.push(std);
+        this.normStd.push(normStd);
+        if (this.std.length > META_INFORMATION_WINDOW){
+            this.std.shift();
+            this.normStd.shift();
         }
     }
 

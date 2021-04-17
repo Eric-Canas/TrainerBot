@@ -18,7 +18,7 @@ class DataTagging{
         while (this.posesTagged.length == 0 && tagIt){
             for(const poseInfo of this.historyToTag.poses){
                 await new Promise(resolve => setTimeout(resolve, 1000/this.fps));
-                this.posePainter.drawPose(poseInfo.pose, poseInfo.normXStd, poseInfo.normYStd, false);
+                this.posePainter.drawPose(poseInfo.pose, poseInfo.normStd, false);
                 if(this.requireTag){
                     this.tagTemporalInfo();
                     this.requireTag = false;
@@ -67,21 +67,18 @@ class DataTagging{
     posesToCSV(solvedPosesList, tag, missingValue = '?', decimal_precision = 5){
         decimal_precision = Math.pow(10, decimal_precision);
         let result = [];
-        throw "Pasalo todo a XY!"
         for (const poseInfo of solvedPosesList){
             let currentPoseCSV = []
             for (const [key, positions] of Object.entries(poseInfo)){
                 const availablePartsOfBody = Object.keys(positions);
                 for (const partOfBody of POSENET_CLEANED_PART_NAMES){
-                    if (availablePartsOfBody.includes(partOfBody)){
-                        let dims = (typeof(positions[partOfBody]) === "object")? ['x', 'y'] : ['', null];                        
-                        for(const dim of dims){
-                            if (dim === null){continue;}
-                            const final_pos = (dim === '')? positions[partOfBody] : positions[partOfBody][dim]; 
-                            const valueAsStr = (Math.round(final_pos*decimal_precision)/decimal_precision).toString()
+                    if (availablePartsOfBody.includes(partOfBody)){                        
+                        for(const dim of ['x', 'y']){
+                            const valueAsStr = (Math.round(positions[partOfBody][dim]*decimal_precision)/decimal_precision).toString();
                             currentPoseCSV.push(valueAsStr);
                         }
                     } else {
+                        currentPoseCSV.push(missingValue)
                         currentPoseCSV.push(missingValue)
                     }
                 }
