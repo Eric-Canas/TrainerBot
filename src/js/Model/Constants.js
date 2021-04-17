@@ -80,4 +80,5 @@ export {MEASURE_ONLY_ON_PREDOMINANT_AXIS, BASE_POSE_CRITERIA, OBJECTIVE_POSE_CRI
 
 //Others
 const EPSILON = 0.0001;
-export {EPSILON};
+const DATASET_PATH = 'data/tagged_poses'
+export {EPSILON, DATASET_PATH};

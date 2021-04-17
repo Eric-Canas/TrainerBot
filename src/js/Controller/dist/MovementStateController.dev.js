@@ -97,14 +97,18 @@ function () {
         }
       }
 
-      var historyEntry = {
-        pose: pose,
-        xStd: this.xStd[this.xStd.length - 1],
-        yStd: this.yStd[this.xStd.length - 1],
-        normXStd: this.normXStd[this.normXStd.length - 1],
-        normYStd: this.normYStd[this.normYStd.length - 1]
-      };
-      this.sessionHistory.push(historyEntry);
+      if (pose !== null && this.basePose !== null && this.objectivePose !== null && this.xStd !== this.xStd[this.xStd.length - 1] && this.yStd[this.xStd.length - 1] !== null && this.normXStd[this.normXStd.length - 1] && this.normYStd[this.normYStd.length - 1]) {
+        var historyEntry = {
+          pose: pose,
+          basePose: this.basePose,
+          objectivePose: this.objectivePose,
+          xStd: this.xStd[this.xStd.length - 1],
+          yStd: this.yStd[this.xStd.length - 1],
+          normXStd: this.normXStd[this.normXStd.length - 1],
+          normYStd: this.normYStd[this.normYStd.length - 1]
+        };
+        this.sessionHistory.push(historyEntry);
+      }
     }
     /*Calculates the distance between the pose Map and a base pose.*/
 
