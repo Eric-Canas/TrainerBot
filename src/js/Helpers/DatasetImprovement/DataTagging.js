@@ -10,6 +10,7 @@ class DataTagging{
        this.requireTag = false;
        this.posesTagged = [];
        this.temporalTags = [];
+       this.sequence_id = Math.floor(Math.random() * 99999999);
     }
     // THIS WHOLE SHIT IS FOR RAPID DEBUGGING. IN RELEASE IT SHOULD BE COMPLETELY CHANGED FOR IMPROVING USER EXPERIENCE.
     // (helping with this tagging could be rewarded with beta functions availability or ads avoidance)
@@ -51,7 +52,7 @@ class DataTagging{
 
 
     tagTemporalInfo(){
-        const tag = prompt("To which exercise these poses correspond? (Don't tag for discarding)", "");
+        const tag = prompt("To which exercise these poses correspond? (Don't tag for discarding)", "").toLowerCase();
         console.log(tag);
         if (tag !== ""){
             const posesAsCSV = this.posesToCSV(this.temporalTags, tag)
@@ -59,6 +60,9 @@ class DataTagging{
             for (const pose of posesAsCSV){
                 this.posesTagged.push(pose);
             }
+        }
+        else{
+            this.sequence_id++;
         }
         this.temporalTags = [];
         
@@ -68,7 +72,7 @@ class DataTagging{
         decimal_precision = Math.pow(10, decimal_precision);
         let result = [];
         for (const poseInfo of solvedPosesList){
-            let currentPoseCSV = []
+            let currentPoseCSV = [this.sequence_id];
             for (const [key, positions] of Object.entries(poseInfo)){
                 const availablePartsOfBody = Object.keys(positions);
                 for (const partOfBody of POSENET_CLEANED_PART_NAMES){
@@ -78,13 +82,13 @@ class DataTagging{
                             currentPoseCSV.push(valueAsStr);
                         }
                     } else {
-                        currentPoseCSV.push(missingValue)
-                        currentPoseCSV.push(missingValue)
+                        currentPoseCSV.push(missingValue);
+                        currentPoseCSV.push(missingValue);
                     }
                 }
             }
-            currentPoseCSV.push(tag)
-            result.push(currentPoseCSV)
+            currentPoseCSV.push(tag);
+            result.push(currentPoseCSV);
         }
         return result;
     }
